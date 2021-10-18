@@ -1,0 +1,6 @@
+services:
+  quest_book.event_subscriber:
+    class: Drupal\quest_book\EventSubscriber\QuestBookSubscriber
+    arguments: ['@messenger']
+    tags:
+      - { name: event_subscriber }

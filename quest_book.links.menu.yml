@@ -1,0 +1,6 @@
+quest_book.settings_form:
+  title: quest_book
+  description: Configure quest_book.
+  parent: system.admin_config_system
+  route_name: quest_book.settings_form
+  weight: 10

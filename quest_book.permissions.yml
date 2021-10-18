@@ -1,0 +1,4 @@
+administer quest_book configuration:
+  title: 'Administer quest_book configuration'
+  description: 'Optional description.'
+  restrict access: true
