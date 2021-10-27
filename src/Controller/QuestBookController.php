@@ -24,16 +24,8 @@ class QuestBookController extends ControllerBase {
         $this->t('Text'),
         $this->t('Date'),
       ],
+      '#rows' => $review,
     ];
-    while ($result = $review->fetchAssoc()) {
-      $build['reviews']['#rows'][$result['id']] = [
-        'id' => '1',
-        'name' => '1',
-        'email' => '2',
-        'tel_number' => '4',
-        'date' => '6',
-      ];
-    }
     return $build;
   }
 
@@ -42,12 +34,24 @@ class QuestBookController extends ControllerBase {
    */
   private function getReviews() {
     $database = \Drupal::service('database');
-
-    return $database
+    $rows = [];
+    $query = $database
       ->select('quest_book', 'qb')
-      ->fields('qb', ['name', 'tel_number', 'email', 'review_text', 'created'])
+      ->fields('qb',
+        ['id', 'name', 'tel_number', 'email', 'review_text', 'created'])
+      ->condition('id', 0, '<>')
       ->orderBy('created')
-      ->execute();
+      ->execute()->fetchAll();
+    foreach ($query as $value) {
+      $rows[$value->id] = [
+        'name' => $value->name,
+        'tel_number' => $value->tel_number,
+        'email' => $value->email,
+        'text_review' => $value->review_text,
+        'date' => $value->created,
+      ];
+    }
+    return $rows;
   }
 
 }
