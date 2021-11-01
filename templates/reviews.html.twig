@@ -1,0 +1,120 @@
+{{ attach_library('quest_book/quest_book') }}
+{#
+/**
+* @file
+* Page for show all cats in table
+*
+* Availible variables:
+*
+* - reviews: Array list all cats:
+*   - id: ID for cats from row in database table
+*   - name: Name cats from database
+*   - email: Email for owner cats
+*   - review_image: Url to image cats on server
+*   - created: Timestamp created row cats on database
+*   - avatar: Url to user avatar
+*   - tel_number: Tel number user
+* - form_add: Form for add review and save to database from AddReview.php
+* - form_edit: Form for edit review from EditReview.php
+* - form_del: Form to delete review from DeleteReview.php
+* - img_path: Default image for avatar(module hooks)
+*/
+#}
+{{form_add}}
+<table class="table">
+	<tr class="table-row">
+		<th class="table-head"></th>
+		<th class="table-head">Avatar</th>
+		<th class="table-head">Name</th>
+		<th class="table-head">Date</th>
+		<th class="table-head">Review image</th>
+		<th class="table-head">Review Text</th>
+		<th class="table-head">Email</th>
+		<th class="table-head">Tel numbers</th>
+		<th class="table-head"></th>
+		<th class="table-head"></th>
+
+	</tr>
+	{% for review in reviews %}
+		<tr class="table-row" id="reviews-{{review.id}}-ajax">
+			<td class="table-col">
+				<div class="form-checkbox ">
+					<input class="form-check-input js-delete-list" data-cat-id="{{ review.id}}" type="checkbox" value="" id="flexCheckDefault">
+				</div>
+			</td>
+			<td class="table-col" id="avatar-{{review.id}}-ajax">
+				{% if not review.avatar is empty %}
+					<a href="{{review.avatar}}">
+						<img src="{{ review.avatar }}" width="120px" alt="{{ review.name }}">
+					</a>
+				{% else %}
+					<img src="{{ img_path }}" width="120px" alt="No Avatar">
+				{% endif %}
+			</td>
+			<td class="table-col" id="name-{{review.id}}-ajax">{{ review.name }}</td>
+			<td class="table-col" id="created-{{review.id}}-ajax">{{ review.created|date("d/m/Y h:i:s") }}</td>
+			<td class="table-col" id="review_picture-{{review.id}}-ajax">
+				{% if not review.review_image is empty %}
+					<a href="{{review.review_image}}">
+						<img src="{{ review.review_image }}" width="120px" alt="{{ review.name }}">
+					</a>
+				{% endif %}
+			</td>
+			<td class="table-col" id="review_text-{{review.id}}-ajax">{{ review.review_text }}</td>
+			<td class="table-col" id="email-{{review.id}}-ajax">{{ review.email }}</td>
+			<td class="table-col" id="tel_number-{{review.id}}-ajax">{{ review.tel_number }}</td>
+
+
+			{% if user_role %}
+				<td class="table-col">
+					<button class="button js-modal__show" data-bs-toggle="modal" data-bs-target="#editModal" data-image-review="{{review.review_image}}" data-image-avatar="{{ review.avatar }}" data-review-id="{{ review.id }}">{{ 'Edit'| t}}</button>
+				</td>
+				<td class="table-col">
+					<button class="button js-modal__show" data-bs-toggle="modal" data-review-id="{{ review.id }}" data-bs-target="#deleteModal">{{'Delete'| t}}</button>
+				</td>
+			{% endif %}
+		</tr>
+	{% endfor %}
+</table>
+
+{# Button for delete some reviews #}
+<button type="button" id="js-delete-some" class="button" data-bs-toggle="modal" data-bs-target="#deleteModal">
+	{{ "Delete selected" | t }}
+</button>
+
+{# Modal for confirm delete reviews #}
+<div class="modal fade" aria-labelledby="DeleteModalLabel" aria-hidden="true" id="deleteModal" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">{{ "Confirm Delete" | t }}</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<p>
+					{{ "Confirm delete this entry?" | t }}
+					<span class="text-danger">{# To replace text with the name of the string #}</span>
+				</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="button" data-bs-dismiss="modal">
+					{{ "Cancel" | t }}
+				</button>
+				{{ form_del }}
+			</div>
+		</div>
+	</div>
+</div>
+
+{# Modal window for edit forms #}
+<div class="modal fade" aria-labelledby="EditModalLabel" aria-hidden="true" id="editModal" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">{{ "Edit review" | t }}</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			{{ form_edit }}
+		</div>
+	</div>
+</div>

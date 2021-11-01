@@ -1,7 +1,7 @@
 quest_book.example:
   path: "/quest-book/example"
   defaults:
-    _title: "Example"
+    _title: "Quest Book"
     _controller: '\Drupal\quest_book\Controller\QuestBookController::buildQuestBook'
   requirements:
     _permission: "access content"
@@ -12,4 +12,4 @@ quest_book.settings_form:
     _title: "quest_book settings"
     _form: 'Drupal\quest_book\Form\AddReview'
   requirements:
-    _permission: "administer quest_book configuration"
+    _custom_access: '\Drupal\quest_book\Controller\QuestBookController::access'

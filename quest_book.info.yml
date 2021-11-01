@@ -4,3 +4,6 @@ description: The description.
 package: Custom
 core: 8.x
 core_version_requirement: ^8 || ^9
+
+libraries:
+  - quest_book/quest_book

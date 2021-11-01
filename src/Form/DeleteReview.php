@@ -28,33 +28,37 @@ class DeleteReview extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $form['idx'] = [
+    $form['delete_id'] = [
       '#type' => 'hidden',
-      '#required' => TRUE,
+      '#attributes' => [
+        'class' => [
+          'js-hidden-id',
+        ],
+      ],
     ];
     $form['delete'] = [
       '#type' => 'submit',
-      '#value' => $this
-      ->t("Delete review"),
+      '#value' => $this->t('Delete'),
+      '#attributes' => [
+        'class' => [
+          'btn-danger',
+        ],
+      ],
     ];
-    return parent::buildForm($form, $form_state);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-    if ($form_state->getValue('example') != 'example') {
-      $form_state->setErrorByName('example', $this->t('The value is not correct.'));
-    }
-    parent::validateForm($form, $form_state);
+    return $form;
   }
 
   /**
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    parent::submitForm($form, $form_state);
+    $conn = \Drupal::database();
+    $id_entry = $form_state->getValue('delete_id');
+    foreach (explode(",", $id_entry) as $id_key) {
+      $conn->delete('quest_book')
+        ->condition('id', $id_key)
+        ->execute();
+    }
   }
 
 }

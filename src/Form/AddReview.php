@@ -35,7 +35,7 @@ class AddReview extends ConfigFormBase {
     $form['name'] = [
       '#type' => 'textfield',
       '#title' => $this
-        ->t("Your cat's name:"),
+        ->t("Your name:"),
       '#description' => $this->t("Min 2 and max 100 characters"),
       '#required' => TRUE,
       '#attributes' => [
@@ -101,7 +101,6 @@ class AddReview extends ConfigFormBase {
         'file_validate_size' => [2 * 1024 * 1024],
       ],
       '#theme' => 'image_widget',
-      '#preview_image_style' => 'medium',
       '#upload_location' => 'public://avatar/',
       '#description' => $this->t("Upload image no more than 2mb"),
     ];
@@ -113,7 +112,6 @@ class AddReview extends ConfigFormBase {
         'file_validate_size' => [5 * 1024 * 1024],
       ],
       '#theme' => 'image_widget',
-      '#preview_image_style' => 'medium',
       '#upload_location' => 'public://review_picture/',
       '#description' => $this->t("Upload image no more than 5mb"),
     ];

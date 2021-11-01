@@ -8,3 +8,24 @@
  * This file is no longer required in Drupal 8.
  * @see https://www.drupal.org/node/2217931
  */
+function quest_book_theme($existing, $type, $theme, $path) {
+  return array(
+    'reviews' => array(
+      'variables' => array(
+        'reviews' => NULL,
+        'form_del' => NULL,
+        'form_edit' => NULL,
+        'form_add' => NULL,
+        'user_role' => NULL,
+      ),
+      'template' =>'reviews',
+    )
+  );
+}
+
+function quest_book_page_attachments(array &$page) {
+  $page['#attached']['library'][] = 'quest_book/bootstrap';
+}
+function quest_book_preprocess(&$variables, $hook) {
+  $variables['img_path'] = file_create_url(drupal_get_path('module', 'quest_book') . '/icons/image-not-found.png');
+}

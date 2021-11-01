@@ -3,6 +3,9 @@
 namespace Drupal\quest_book\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\user\Entity\User;
 
 /**
  * Returns responses for quest_book routes.
@@ -13,20 +16,19 @@ class QuestBookController extends ControllerBase {
    * Build page quest book with form, all reviews, edit button.
    */
   public function buildQuestBook() {
-
-    $review = $this->getReviews();
-    $build['reviews'] = [
-      '#type' => 'table',
-      '#header' => [
-        $this->t('Name'),
-        $this->t('Phone'),
-        $this->t('Email'),
-        $this->t('Text'),
-        $this->t('Date'),
-      ],
-      '#rows' => $review,
+    $access = User::load(\Drupal::currentUser()->id())->hasRole('administrator');
+    // $roles = $current_user->;
+    $form_edit = \Drupal::formBuilder()->getForm('Drupal\quest_book\Form\EditReview');
+    $form_delete = \Drupal::formBuilder()->getForm('Drupal\quest_book\Form\DeleteReview');
+    $form_add = \Drupal::formBuilder()->getForm('Drupal\quest_book\Form\AddReview');
+    return [
+      '#theme' => 'reviews',
+      '#reviews' => $this->getReviews(),
+      '#form_del' => $form_delete,
+      '#form_edit' => $form_edit,
+      '#form_add' => $form_add,
+      '#user_role' => $access,
     ];
-    return $build;
   }
 
   /**
@@ -34,24 +36,15 @@ class QuestBookController extends ControllerBase {
    */
   private function getReviews() {
     $database = \Drupal::service('database');
-    $rows = [];
-    $query = $database
+    return $database
       ->select('quest_book', 'qb')
       ->fields('qb',
-        ['id', 'name', 'tel_number', 'email', 'review_text', 'created'])
+        ['id', 'name', 'tel_number',
+          'email', 'review_text', 'created', 'avatar',
+        ])
       ->condition('id', 0, '<>')
-      ->orderBy('created')
+      ->orderBy('created', 'DESC')
       ->execute()->fetchAll();
-    foreach ($query as $value) {
-      $rows[$value->id] = [
-        'name' => $value->name,
-        'tel_number' => $value->tel_number,
-        'email' => $value->email,
-        'text_review' => $value->review_text,
-        'date' => $value->created,
-      ];
-    }
-    return $rows;
   }
 
 }
