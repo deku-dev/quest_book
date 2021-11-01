@@ -32,7 +32,7 @@ class AddReview extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $form['name'] = [
+    $form['name_add'] = [
       '#type' => 'textfield',
       '#title' => $this
         ->t("Your name:"),
@@ -49,7 +49,7 @@ class AddReview extends ConfigFormBase {
       ],
     ];
     $form['name_error'] = [
-      '#markup' => '<span id="name-label"></span>',
+      '#markup' => '<span id="name-label" class="text-danger"></span>',
     ];
     $form['email'] = [
       '#type' => 'email',
@@ -75,7 +75,7 @@ class AddReview extends ConfigFormBase {
       ],
     ];
     $form['email_error'] = [
-      '#markup' => '<span id="email-label"></span>',
+      '#markup' => '<span id="email-label" class="text-danger"></span>',
     ];
     $form['tel_number'] = [
       '#type' => 'tel',
@@ -91,7 +91,7 @@ class AddReview extends ConfigFormBase {
       ],
     ];
     $form['tel_error'] = [
-      '#markup' => '<span id="tel-label"></span>',
+      '#markup' => '<span id="tel-label" class="text-danger"></span>',
     ];
     $form['avatar'] = [
       '#type' => 'managed_file',
@@ -122,15 +122,12 @@ class AddReview extends ConfigFormBase {
       '#required' => TRUE,
     ];
     $form['review_error'] = [
-      '#markup' => '<span id="review-label"></span>',
+      '#markup' => '<span id="review-label" class="text-danger"></span>',
     ];
     $form['send_review'] = [
       '#type' => 'submit',
       '#value' => $this
         ->t('Send'),
-    ];
-    $form['label_error'] = [
-      '#markup' => '<span id="messenger-label"></span>',
     ];
     return $form;
   }
@@ -139,22 +136,22 @@ class AddReview extends ConfigFormBase {
    * Validate name user ajax.
    */
   public function validateName(array &$form, FormStateInterface $form_state) {
-    $len_name = strlen($form_state->getValue('name'));
-    return ($len_name < 2) ? $this->setCommand($len_name < 2, "#name-label", "<span class='text-danger'>The user name is to short.</span>") : $this->setCommand($len_name < 100, "#name-label", "<span class='text-danger'>The user name is to short.</span>");
+    $len_name = strlen($form_state->getValue('name_add'));
+    return $this->setCommand($len_name < 2, "#name-label", "The user name is to short.") || $this->setCommand($len_name < 100, "#name-label", "The user name is to short.");
   }
 
   /**
    * Validate email ajax.
    */
   public function validateEmail(array &$form, FormStateInterface $form_state) {
-    return $this->setCommand(!filter_var($form_state->getValue('email'), FILTER_VALIDATE_EMAIL), '#email-label', '<span class="text-danger">Email is not valid. Please enter a valid email.</span>');
+    return $this->setCommand(!filter_var($form_state->getValue('email'), FILTER_VALIDATE_EMAIL), '#email-label', 'Email is not valid. Please enter a valid email.');
   }
 
   /**
    * Validate tel number ajax.
    */
   public function validateTel(array &$form, FormStateInterface $form_state) {
-    return $this->setCommand(!preg_match('/^\+?\d{10,15}$/', $form_state->getValue('tel_number')), "#tel-label", '<span class="text-danger">Phone number is not valid. Please enter a valid phone number</span>');
+    return $this->setCommand(!preg_match('/^\+?\d{10,15}$/', $form_state->getValue('tel_number')), "#tel-label", 'Phone number is not valid. Please enter a valid phone number');
   }
 
   /**
@@ -180,7 +177,7 @@ class AddReview extends ConfigFormBase {
       return $response->addCommand(new HtmlCommand($selector, $text));
     }
     else {
-      return $response->addCommand(new HtmlCommand($selector, $text));
+      return $response->addCommand(new HtmlCommand($selector, ''));
     }
   }
 
@@ -188,7 +185,7 @@ class AddReview extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    return $this->validateName($form, $form_state) || $this->validateEmail($form, $form_state) || $this->validateTel($form, $form_state) || $this->validateReview($form, $form_state);
+    // return $this->validateName($form, $form_state) && $this->validateEmail($form, $form_state) && $this->validateTel($form, $form_state) && $this->validateReview($form, $form_state);
   }
 
   /**

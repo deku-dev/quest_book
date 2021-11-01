@@ -16,21 +16,21 @@ class EditReview extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  public function getFormId() {
+  public function getFormId(): string {
     return 'quest_book_edit';
   }
 
   /**
    * {@inheritdoc}
    */
-  protected function getEditableConfigNames() {
+  protected function getEditableConfigNames(): array {
     return ['quest_book.settings'];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state): array {
     $form['edit_id'] = [
       '#type' => 'hidden',
       '#prefix' => '<div class="modal-body">',
@@ -149,7 +149,14 @@ class EditReview extends ConfigFormBase {
       '#suffix' => '</div>',
     ];
     $form['cancel-modal'] = [
-      '#markup' => '<button type="button" class="button" data-bs-dismiss="modal">Cancel</button>',
+      '#type' => 'button',
+      '#value' => $this->t('Cancel'),
+      '#attributes' => [
+        'data-bs-dismiss' => 'modal',
+        'class' => [
+          'btn-danger',
+        ],
+      ],
       '#prefix' => '<div class="modal-footer">',
     ];
     $form['edit_cat'] = [
@@ -167,34 +174,44 @@ class EditReview extends ConfigFormBase {
   /**
    * Validate name user ajax.
    */
-  public function validateName(array &$form, FormStateInterface $form_state) {
+  public function validateName(FormStateInterface $form_state): AjaxResponse {
     $len_name = strlen($form_state->getValue('name'));
-    return ($len_name < 2) ? $this->setCommand($len_name < 2, "#name-edit", "<span class='text-danger'>The user name is to short.</span>") : $this->setCommand($len_name < 100, "#name-edit", "<span class='text-danger'>The user name is to short.</span>");
+    return ($len_name < 2) ?
+      $this->setCommand($len_name < 2,
+        "#name-edit",
+        "<span class='text-danger'>The username is to short.</span>") :
+      $this->setCommand($len_name < 100,
+        "#name-edit",
+        "<span class='text-danger'>The username is to short.</span>");
   }
 
   /**
    * Validate email ajax.
    */
-  public function validateEmail(array &$form, FormStateInterface $form_state) {
-    return $this->setCommand(!filter_var($form_state->getValue('email'), FILTER_VALIDATE_EMAIL), '#email-edit', '<span class="text-danger">Email is not valid. Please enter a valid email.</span>');
+  public function validateEmail(FormStateInterface $form_state): AjaxResponse {
+    return $this->setCommand(
+      !filter_var($form_state->getValue('email'),
+        FILTER_VALIDATE_EMAIL),
+      '#email-edit',
+      '<span class="text-danger">Email is not valid. Please enter a valid email.</span>');
   }
 
   /**
    * Validate tel number ajax.
    */
-  public function validateTel(array &$form, FormStateInterface $form_state) {
+  public function validateTel(FormStateInterface $form_state): AjaxResponse {
     return $this->setCommand(!preg_match('^\+?\d{10,15}$c', $form_state->getValue('tel_number')), "#tel-edit", '<span class="text-danger">Phone number is not valid. Please enter a valid phone number</span>');
   }
 
   /**
    * Validate user review.
    */
-  public function validateReview(array &$form, FormStateInterface $form_state) {
+  public function validateReview(FormStateInterface $form_state): AjaxResponse {
     return $this->setCommand(!$form_state->getValue('review_text'), '#review-edit', 'Please enter a review text');
   }
 
   /**
-   * Add htmlcommand to response ajax.
+   * Add command to response ajax.
    *
    * @param bool $condition
    *   Condition for setcommand.
@@ -203,21 +220,24 @@ class EditReview extends ConfigFormBase {
    * @param string $text
    *   Text for error.
    */
-  private function setCommand($condition, string $selector, string $text) {
+  private function setCommand(bool $condition, string $selector, string $text): AjaxResponse {
     $response = new AjaxResponse();
     if ($condition) {
       return $response->addCommand(new HtmlCommand($selector, $text));
     }
     else {
-      return $response->addCommand(new HtmlCommand($selector, $text));
+      return $response->addCommand(new HtmlCommand($selector, ''));
     }
   }
 
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-    return $this->validateName($form, $form_state) || $this->validateEmail($form, $form_state) || $this->validateTel($form, $form_state) || $this->validateReview($form, $form_state);
+  public function validateForm(array &$form, FormStateInterface $form_state): bool {
+    return $this->validateName($form_state) ||
+      $this->validateEmail($form_state) ||
+      $this->validateTel($form_state) ||
+      $this->validateReview($form_state);
   }
 
   /**
@@ -253,7 +273,7 @@ class EditReview extends ConfigFormBase {
       if (empty($value)) {
         continue;
       }
-      $connection->update('deku')
+      $connection->update('quest_book')
         ->fields([
           $field => $value,
         ])

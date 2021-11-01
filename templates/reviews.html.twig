@@ -67,10 +67,10 @@
 
 			{% if user_role %}
 				<td class="table-col">
-					<button class="button js-modal__show" data-bs-toggle="modal" data-bs-target="#editModal" data-image-review="{{review.review_image}}" data-image-avatar="{{ review.avatar }}" data-review-id="{{ review.id }}">{{ 'Edit'| t}}</button>
+					<button class="button js-modal__show btn-primary" data-bs-toggle="modal" data-bs-target="#editModal" data-image-review="{{review.review_image}}" data-image-avatar="{{ review.avatar }}" data-review-id="{{ review.id }}">{{ 'Edit'| t}}</button>
 				</td>
 				<td class="table-col">
-					<button class="button js-modal__show" data-bs-toggle="modal" data-review-id="{{ review.id }}" data-bs-target="#deleteModal">{{'Delete'| t}}</button>
+					<button class="button js-modal__show btn-danger" data-bs-toggle="modal" data-review-id="{{ review.id }}" data-bs-target="#deleteModal">{{'Delete'| t}}</button>
 				</td>
 			{% endif %}
 		</tr>
@@ -78,7 +78,7 @@
 </table>
 
 {# Button for delete some reviews #}
-<button type="button" id="js-delete-some" class="button" data-bs-toggle="modal" data-bs-target="#deleteModal">
+<button type="button" id="js-delete-some" class="button btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
 	{{ "Delete selected" | t }}
 </button>
 
