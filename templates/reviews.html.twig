@@ -45,7 +45,7 @@
 			<td class="table-col" id="avatar-{{review.id}}-ajax">
 				{% if not review.avatar is empty %}
 					<a href="{{review.avatar}}">
-						<img src="{{ review.avatar }}" width="120px" alt="{{ review.name }}">
+						<img src="/sites/default/files/avatar/{{ review.avatar }}" width="120px" alt="{{ review.name }}">
 					</a>
 				{% else %}
 					<img src="{{ img_path }}" width="120px" alt="No Avatar">
@@ -53,10 +53,10 @@
 			</td>
 			<td class="table-col" id="name-{{review.id}}-ajax">{{ review.name }}</td>
 			<td class="table-col" id="created-{{review.id}}-ajax">{{ review.created|date("d/m/Y h:i:s") }}</td>
-			<td class="table-col" id="review_picture-{{review.id}}-ajax">
-				{% if not review.review_image is empty %}
-					<a href="{{review.review_image}}">
-						<img src="{{ review.review_image }}" width="120px" alt="{{ review.name }}">
+			<td class="table-col" id="image_review-{{review.id}}-ajax">
+				{% if not review.image_review is empty %}
+					<a href="/sites/default/files/review_picture/{{review.image_review}}">
+						<img src="/sites/default/files/review_picture/{{ review.image_review }}" width="120px" alt="{{ review.name }}">
 					</a>
 				{% endif %}
 			</td>

@@ -3,13 +3,13 @@
 namespace Drupal\quest_book\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\HtmlCommand;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\file\Entity\File;
 
 /**
- * Configure quest_book settings for this site.
+ * Form Edit entry in database and validation.
  */
 class EditReview extends ConfigFormBase {
 
@@ -40,7 +40,7 @@ class EditReview extends ConfigFormBase {
         ],
       ],
     ];
-    $form['name'] = [
+    $form['name-edit'] = [
       '#type' => 'textfield',
       '#title' => $this
         ->t("Your name:"),
@@ -50,13 +50,13 @@ class EditReview extends ConfigFormBase {
         'max-length' => '100',
       ],
       '#ajax' => [
-        'callback' => '::validateForm',
+        'callback' => '::validateName',
         'event' => 'change',
         'effect' => 'fade',
       ],
     ];
     $form['name_error'] = [
-      '#markup' => '<span id="name-edit"></span>',
+      '#markup' => '<span id="name-edit" class="text-danger"></span>',
     ];
     $form['email'] = [
       '#type' => 'email',
@@ -81,13 +81,13 @@ class EditReview extends ConfigFormBase {
       ],
     ];
     $form['email_error'] = [
-      '#markup' => '<span id="email-edit"></span>',
+      '#markup' => '<span id="email-edit" class="text-danger"></span>',
     ];
     $form['tel_number'] = [
       '#type' => 'tel',
       '#title' => $this
         ->t("Your phone number:"),
-      '#pattern' => '^\+?\d{10,15}$',
+      '#pattern' => '/^\+?\d{10,15}$/',
       '#ajax' => [
         'callback' => '::validateTel',
         'event' => 'change',
@@ -96,7 +96,7 @@ class EditReview extends ConfigFormBase {
       ],
     ];
     $form['tel_error'] = [
-      '#markup' => '<span id="tel-edit"></span>',
+      '#markup' => '<span id="tel-edit" class="text-danger"></span>',
     ];
     $form['review_text'] = [
       '#type' => 'textarea',
@@ -104,7 +104,7 @@ class EditReview extends ConfigFormBase {
         ->t("Text your review:"),
     ];
     $form['review_error'] = [
-      '#markup' => '<span id="review-edit"></span>',
+      '#markup' => '<span id="review-edit" class="text-danger"></span>',
     ];
     $form['avatar'] = [
       '#type' => 'managed_file',
@@ -117,14 +117,12 @@ class EditReview extends ConfigFormBase {
       '#preview_image_style' => 'medium',
       '#upload_location' => 'public://avatar/',
     ];
-    $form['avatar-thumb'] = [
-      '#markup' => '<div id="avatar-js-thumb"></div>',
-    ];
-    $form['delete_avatar'] = [
+    // Checkbox for delete avatar.
+    $form['delete-avatar'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Delete Avatar'),
     ];
-    $form['review_picture'] = [
+    $form['image_review'] = [
       '#type' => 'managed_file',
       '#title' => $this->t('Review picture'),
       '#upload_validators' => [
@@ -135,19 +133,14 @@ class EditReview extends ConfigFormBase {
       '#preview_image_style' => 'medium',
       '#upload_location' => 'public://review_picture/',
     ];
-    $form['image_thumb'] = [
-      '#markup' => '<div id="image-js-thumb"></div>',
-    ];
-
-    $form['delete_picture'] = [
+    // Checkbox for delete review picture.
+    $form['delete-image_review'] = [
       '#type' => 'checkbox',
       '#title' => $this
         ->t('Delete review picture'),
-    ];
-    $form['error-label'] = [
-      '#markup' => '<span id="error-edit" class="text-danger label-alert"></span>',
       '#suffix' => '</div>',
     ];
+    // Button for hide modal window.
     $form['cancel-modal'] = [
       '#type' => 'button',
       '#value' => $this->t('Cancel'),
@@ -159,6 +152,7 @@ class EditReview extends ConfigFormBase {
       ],
       '#prefix' => '<div class="modal-footer">',
     ];
+    // Send changes to php.
     $form['edit_cat'] = [
       '#type' => 'submit',
       '#value' => $this->t('Save'),
@@ -172,61 +166,58 @@ class EditReview extends ConfigFormBase {
   }
 
   /**
-   * Validate name user ajax.
+   * Validate name user ajax(min 2, max 100 characters).
    */
-  public function validateName(FormStateInterface $form_state): AjaxResponse {
-    $len_name = strlen($form_state->getValue('name'));
-    return ($len_name < 2) ?
-      $this->setCommand($len_name < 2,
-        "#name-edit",
-        "<span class='text-danger'>The username is to short.</span>") :
-      $this->setCommand($len_name < 100,
-        "#name-edit",
-        "<span class='text-danger'>The username is to short.</span>");
-  }
-
-  /**
-   * Validate email ajax.
-   */
-  public function validateEmail(FormStateInterface $form_state): AjaxResponse {
-    return $this->setCommand(
-      !filter_var($form_state->getValue('email'),
-        FILTER_VALIDATE_EMAIL),
-      '#email-edit',
-      '<span class="text-danger">Email is not valid. Please enter a valid email.</span>');
-  }
-
-  /**
-   * Validate tel number ajax.
-   */
-  public function validateTel(FormStateInterface $form_state): AjaxResponse {
-    return $this->setCommand(!preg_match('^\+?\d{10,15}$c', $form_state->getValue('tel_number')), "#tel-edit", '<span class="text-danger">Phone number is not valid. Please enter a valid phone number</span>');
-  }
-
-  /**
-   * Validate user review.
-   */
-  public function validateReview(FormStateInterface $form_state): AjaxResponse {
-    return $this->setCommand(!$form_state->getValue('review_text'), '#review-edit', 'Please enter a review text');
-  }
-
-  /**
-   * Add command to response ajax.
-   *
-   * @param bool $condition
-   *   Condition for setcommand.
-   * @param string $selector
-   *   Selector where replace html.
-   * @param string $text
-   *   Text for error.
-   */
-  private function setCommand(bool $condition, string $selector, string $text): AjaxResponse {
+  public function validateName(array &$form, FormStateInterface $form_state): AjaxResponse {
     $response = new AjaxResponse();
-    if ($condition) {
-      return $response->addCommand(new HtmlCommand($selector, $text));
+    $len_name = strlen($form_state->getValue('name-edit'));
+    if ($len_name < 2) {
+      return $response->addCommand(new HtmlCommand('#name-edit', 'The user name is to short.'));
+    }
+    elseif ($len_name > 100) {
+      return $response->addCommand(new HtmlCommand('#name-edit', 'The user name is to long.'));
     }
     else {
-      return $response->addCommand(new HtmlCommand($selector, ''));
+      return $response->addCommand(new HtmlCommand('#name-edit', ''));
+    }
+  }
+
+  /**
+   * Validate email ajax with standart method from php.
+   */
+  public function validateEmail(array &$form, FormStateInterface $form_state): AjaxResponse {
+    $response = new AjaxResponse();
+    if (!filter_var($form_state->getValue('email'), FILTER_VALIDATE_EMAIL)) {
+      return $response->addCommand(new HtmlCommand('#email-edit', 'Email is not valid. Please enter a valid email.'));
+    }
+    else {
+      return $response->addCommand(new HtmlCommand('#email-label', ''));
+    }
+  }
+
+  /**
+   * Validate tel number ajax (min 10, max 15, only number, "+"not necessarily).
+   */
+  public function validateTel(array &$form, FormStateInterface $form_state): AjaxResponse {
+    $response = new AjaxResponse();
+    if (preg_match('/^\+?\d{10,15}$/', $form_state->getValue('tel_number'))) {
+      return $response->addCommand(new HtmlCommand('#tel-edit', ''));
+    }
+    else {
+      return $response->addCommand(new HtmlCommand('#tel-edit', 'Phone number is not valid. Please enter a valid phone number'));
+    }
+  }
+
+  /**
+   * Validate user review for entered value.
+   */
+  public function validateReview(array &$form, FormStateInterface $form_state): AjaxResponse {
+    $response = new AjaxResponse();
+    if (!$form_state->getValue('review_text')) {
+      return $response->addCommand(new HtmlCommand('#review-edit', 'Please enter a review text'));
+    }
+    else {
+      return $response->addCommand(new HtmlCommand('#review-edit', ''));
     }
   }
 
@@ -234,10 +225,10 @@ class EditReview extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state): bool {
-    return $this->validateName($form_state) ||
-      $this->validateEmail($form_state) ||
-      $this->validateTel($form_state) ||
-      $this->validateReview($form_state);
+    return $this->validateName($form, $form_state) ||
+      $this->validateEmail($form, $form_state) ||
+      $this->validateTel($form, $form_state) ||
+      $this->validateReview($form, $form_state);
   }
 
   /**
@@ -247,12 +238,19 @@ class EditReview extends ConfigFormBase {
     $response = new AjaxResponse();
     $connection = \Drupal::service('database');
     $image = [
-      'review_picture' => NULL,
+      'image_review' => NULL,
       'avatar' => NULL,
     ];
+    // Get name and prepare for add to database.
     foreach ($image as $field => $img) {
-      if ($form_state->getValue($field)) {
+      if (!$form_state->getValue($field)) {
+        continue;
+      }
+      if ($form_state->getValue('delete-' . $field)) {
         $image[$field] = "";
+        // Default image for field.
+        $replaceCell = $field == 'avatar' ? '<img src="/modules/custom/quest_book/icons/image-not-found.png" width="120px" alt="No Avatar">' : '';
+        $response->addCommand(new HtmlCommand('#' . $field . '-' . $form_state->getValue('edit_id') . '-ajax', $replaceCell));
         continue;
       }
       $image_edit = $form_state->getValue($field);
@@ -261,15 +259,39 @@ class EditReview extends ConfigFormBase {
       $file->save();
       $image[$field] = $file->getFilename();
     }
+    // Array for all field in database.
     $valueList = [
-      'name' => $form_state->getValue('name'),
+      'name' => $form_state->getValue('name-edit'),
       'email' => $form_state->getValue('email'),
       'review_text' => $form_state->getValue('review_text'),
-      'review_picture' => $image['review_picture'],
-      'avatar' => $image['avatar'],
       'tel_number' => $form_state->getValue('tel_number'),
     ];
+    foreach ($image as $field => $url) {
+      if (is_null($url)) {
+        continue;
+      }
+      $connection->update('quest_book')
+        ->fields([
+          $field => $url,
+        ])
+        ->condition('id', $form_state->getValue('edit_id'))
+        ->execute();
+      // Add response for image field.
+      $folderImg = [
+        'image_review' => '/sites/default/files/review_picture/',
+        'avatar' => '/sites/default/files/avatar/',
+      ];
+      $response->addCommand(new HtmlCommand(
+        '#' . $field . '-' . $form_state->getValue('edit_id') . '-ajax',
+        '<a href="' . $folderImg[$field] . $url . '">
+        <img src="' . $folderImg[$field] . $url . '" width="120px" alt="' . $form_state->getValue('name') . '">
+      </a>'
+      ));
+
+    }
+    // Cycle and update database field.
     foreach ($valueList as $field => $value) {
+      // For empty field not update in database.
       if (empty($value)) {
         continue;
       }
@@ -279,21 +301,13 @@ class EditReview extends ConfigFormBase {
         ])
         ->condition('id', $form_state->getValue('edit_id'))
         ->execute();
-      if ($field == 'review_picture' || $field == 'avatar') {
-        return $response->addCommand(new HtmlCommand(
-          '#' . $field . '-' . $form_state->getValue('edit_id') . '-ajax',
-          '<a href="' . $form_state->getValue($field) . '">
-          <img src="' . $form_state->getValue($field) . '" width="120px" alt="' . $form_state->getValue('name') . '">
-        </a>'
-        ));
-      }
-      else {
-        return $response->addCommand(new HtmlCommand(
+      // Response for all field but not image field.
+      $response->addCommand(new HtmlCommand(
           '#' . $field . '-' . $form_state->getValue('edit_id') . '-ajax',
           $value
         ));
-      }
     }
+    return $response;
   }
 
 }

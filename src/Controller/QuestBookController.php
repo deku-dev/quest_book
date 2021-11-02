@@ -3,8 +3,6 @@
 namespace Drupal\quest_book\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Access\AccessResult;
-use Drupal\Core\Session\AccountInterface;
 use Drupal\user\Entity\User;
 
 /**
@@ -16,10 +14,13 @@ class QuestBookController extends ControllerBase {
    * Build page quest book with form, all reviews, edit button.
    */
   public function buildQuestBook() {
+    // Check user role for edit review.
     $access = User::load(\Drupal::currentUser()->id())->hasRole('administrator');
-    // $roles = $current_user->;
+    // Get for edit review from class.
     $form_edit = \Drupal::formBuilder()->getForm('Drupal\quest_book\Form\EditReview');
+    // Get for delete review.
     $form_delete = \Drupal::formBuilder()->getForm('Drupal\quest_book\Form\DeleteReview');
+    // Get form for add review.
     $form_add = \Drupal::formBuilder()->getForm('Drupal\quest_book\Form\AddReview');
     return [
       '#theme' => 'reviews',
@@ -40,7 +41,7 @@ class QuestBookController extends ControllerBase {
       ->select('quest_book', 'qb')
       ->fields('qb',
         ['id', 'name', 'tel_number',
-          'email', 'review_text', 'created', 'avatar',
+          'email', 'review_text', 'created', 'avatar', 'image_review',
         ])
       ->condition('id', 0, '<>')
       ->orderBy('created', 'DESC')

@@ -15,17 +15,6 @@
     console.log(this.getAttribute('data-bs-target'));
 
     modalId.value = this.getAttribute('data-review-id');
-
-    let imageField = this.getAttribute('data-image-review');
-    let avatarField = this.getAttribute('data-image-avatar');
-
-    if (this.hasAttribute('data-image-review') && imageField != "") {
-      document.getElementById('image-js-thumb').innerHTML = "<img width='50px' height='50px' src='" + imageField + "'>";
-    }
-
-    if (this.hasAttribute('data-image-avatar') && avatarField != "") {
-      document.getElementById('avatar-js-thumb').innerHTML = "<img width='50px' height='50px' src='" + avatarField + "'>";
-    }
   });
 
 
